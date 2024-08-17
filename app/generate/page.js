@@ -19,18 +19,7 @@ export default function Generate() {
     const [isLoading, setLoading] = useState(false)
     const router = useRouter();
 
-    // const handleSubmit = async () => {
-    //     fetch('api/generate', {
-    //         method: "POST",
-    //         body: text,
-    //     })
-    //     .then((res) => {
-    //         console.log(res)
-    //         res.json()})
-    //     .then((data) =>    {
-    //         console.log(flashcards)
-    //         setFlashcards(data)});
-    // };
+ 
 
     if (isLoaded && !isSignedIn) {
         router.push('/');
@@ -56,7 +45,7 @@ export default function Generate() {
         } catch (error) {
             console.log('Error fetching data:', error);
        }finally {
-        setIsLoading(false); // Set loading to false when the function completes
+        setLoading(false); /// Set loading to false when the function completes
       }
     };
     
