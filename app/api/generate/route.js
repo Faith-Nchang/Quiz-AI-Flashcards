@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import 'dotenv/config';
 
 const systemPrompt = `
 You are a flashcard creator designed to assist with career recommendations and educational quizzes. Your flashcards should:
@@ -12,6 +13,7 @@ You are a flashcard creator designed to assist with career recommendations and e
 6. **Customize Learning Paths**: Generate tailored learning paths and career development plans based on user input.
 7. **Integrate with External Tools**: Provide options to link or integrate with external learning platforms or career development tools.
 8. **Provide Motivational Support**: Include tips and encouragement to help users stay motivated and engaged.
+9. 0nly generate 10 flashcards
 
 Ensure the content is engaging, accurate, and tailored to support the user's learning and career development.
 Return in the following JSON format
@@ -24,7 +26,9 @@ Return in the following JSON format
 `
 
 export async function POST(req){
-    const opeanai = OpenAI();
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
     const data = await req.text();
 
     const completion = await openai.chat.completions.create({
