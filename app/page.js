@@ -22,7 +22,7 @@ export default function Home() {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Origin': 'http://localhost:3000',
+          // 'Origin': 'http://localhost:3000',
         },
         body: JSON.stringify({ amount }), // Send the amount to the API
       });
