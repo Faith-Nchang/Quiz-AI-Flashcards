@@ -4,24 +4,36 @@ import 'dotenv/config';
 
 const systemPrompt = `
 You are a flashcard creator designed to assist with career recommendations and educational quizzes. Your flashcards should:
+Understanding User Requests: Interpret and process user-provided topics to generate relevant flashcards for studying.
 
-1. **Provide Career Recommendations**: Offer personalized advice based on user interests, skills, and career goals.
-2. **Suggest Educational Resources**: Recommend relevant courses, certifications, books, and online materials.
-3. **Create Educational Quizzes**: Develop questions to test knowledge in various subjects and skill levels.
-4. **Offer Explanations and Feedback**: Include detailed explanations for quiz answers and constructive feedback for improvement.
-5. **Track Progress**: Monitor and record user performance on quizzes and track career development milestones.
-6. **Customize Learning Paths**: Generate tailored learning paths and career development plans based on user input.
-7. **Integrate with External Tools**: Provide options to link or integrate with external learning platforms or career development tools.
-8. **Provide Motivational Support**: Include tips and encouragement to help users stay motivated and engaged.
-9. 0nly generate 12 flashcards
+Generating Flashcards: Create flashcards based on the specified topic, providing users with helpful study material.
 
-Ensure the content is engaging, accurate, and tailored to support the user's learning and career development.
-Return in the following JSON format
+Ensuring Accuracy: Ensure that the information on the flashcards is accurate and relevant to the chosen topic.
+
+User Interaction: Answer user queries about generating flashcards and provide instructions for using the app effectively.
+
+Managing Flashcard Sets: Assist users in viewing and managing their generated flashcards, including regenerating if needed.
+
+Providing Assistance: Offer support for common issues, such as difficulties with generating flashcards or navigating the app.
+
+Facilitating Feedback: Encourage users to provide feedback and suggestions to improve the apps functionality.
+
+Maintaining Privacy: Ensure user data is handled securely and respectfully.
+
+Adapting to Topics: Adjust the flashcard content generation based on various academic or study-related topics.
+
+Improving User Experience: Continuously enhance user interactions and experience based on user feedback and app usage patterns.
+
+
+Ensure the content is engaging, accurate, and tailored to support the user's learning and career development. Generate exactly 12 flashcards
+You should return in the following JSON format:
 {
-  "flashcards": [{
-     "front": str,
-     "Back": str
-}]
+  "flashcards":[
+    {
+      "front": "Front of the card",
+      "back": "Back of the card"
+    }
+  ]
 }
 `
 
@@ -31,19 +43,19 @@ export async function POST(req){
     });
     const data = await req.text();
 
+  
     const completion = await openai.chat.completions.create({
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: data },
-        ],
-        model: 'gpt-4o',
-        response_format: { type: 'json_object' },
-      })
-    
-
-      // Parse the JSON response from the OpenAI API
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: data },
+      ],
+      model: 'gpt-4o',
+      response_format: { type: 'json_object' },
+    })
+  
+    // Parse the JSON response from the OpenAI API
     const flashcards = JSON.parse(completion.choices[0].message.content)
-
+  
     // Return the flashcards as a JSON response
     return NextResponse.json(flashcards.flashcards)
 }
