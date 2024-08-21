@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Box, Button, Card,AppBar, Toolbar, CardActionArea, CircularProgress, CardContent, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, Typography, Grid, TextField } from "@mui/material";
 import db from "@/firebase";
-import { doc, collection, setDoc, getDoc, writeBatch } from "firebase/firestore";
+import { doc, deleteDoc, writeBatch, collection, getDoc } from "firebase/firestore";
 import { SignedOut, SignedIn, UserButton } from '@clerk/nextjs';
+
+
 
 import { useUser } from "@clerk/nextjs";
 
@@ -14,38 +16,43 @@ export default function Generate() {
     const [flashcards, setFlashcards] = useState([]);
     const [flipped, setFlipped] = useState([]);
     const [text, setText] = useState('');
+    const [file, setFile] = useState(null);
     const [name, setName] = useState('');
     const [open, setOpen] = useState(false);
     const [isLoading, setLoading] = useState(false)
     const router = useRouter();
 
- 
+   
 
     if (isLoaded && !isSignedIn) {
         router.push('/');
       }
-
+    
     const handleSubmit = async () => {
-        setLoading(true)
-        try {
+        // ensures the user inputs a text
+        if (!text.trim()) {
+            alert('Please enter some text to generate flashcards.')
+            return
+          }
+          setLoading(true)
+          try {
             const response = await fetch('/api/generate', {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json', // Ensure the content type is specified
-                },
-                body: JSON.stringify({ text }), // Convert the text to JSON
-            });
-    
+              method: 'POST',
+              body: text,
+            })
+        
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+              throw new Error('Failed to generate flashcards')
             }
-    
-            const data = await response.json();
-            setFlashcards(data); // Update state with the fetched data
-        } catch (error) {
-            console.log('Error fetching data:', error);
+        
+            const data = await response.json()
+            setFlashcards(data)
+          } catch (error) {
+            console.error('Error generating flashcards:', error)
+            alert('An error occurred while generating flashcards. Please try again.')
+          
        }finally {
-        setLoading(false); /// Set loading to false when the function completes
+        setLoading(false); // Set loading to false when the function completes
       }
     };
     
@@ -99,6 +106,32 @@ export default function Generate() {
         router.push('/flashcards');
     };
 
+ 
+    // Process the file and update the text field
+    const handleFileUpload = () => {
+        if (!file) return;
+        processTextFile(file);
+        if (file.type.includes('text')) {
+            processTextFile(file);
+        } else if (file.type.includes('presentation')) {
+            processPptxFile(file);
+        } else {
+            alert('Unsupported file type');
+        }
+    };
+
+    // Process text file content
+    const processTextFile = (file) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const fileData = event.target.result;
+            setText(fileData);
+        };
+        // reader.readAsText(file);
+    };
+
+    
+
     return (
         <Box minWidth="100%" minHeight='100vh' sx={{ backgroundColor: '#081C15', color:'white'}}>
             <AppBar position="static" sx={{ backgroundColor: "#142C21", height: 80, justifyContent: 'center',mb:3 }}>
@@ -126,10 +159,13 @@ export default function Generate() {
                         variant='outlined'
                         sx={{ mb: 2}}
                     />
-                    <Button variant="contained" color="primary" sx={{ mt: 2, backgroundColor: "#003B2C" }} fullWidth onClick={handleSubmit}>
-                        Submit
-                    </Button>
-                   
+                    <Box display='flex' flexDirection='row' alignItems={'center'} justifyContent={'center'}>
+                        
+                            <Button variant="contained" color="primary" sx={{ mt: 2, backgroundColor: "#003B2C", mr:1 }} fullWidth onClick={handleSubmit}>
+                                Submit
+                            </Button>
+                     
+                </Box>
                 </Paper>
             </Container>
             { isLoading && (
